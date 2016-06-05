@@ -2,6 +2,7 @@ import {EventEmitter} from 'events'
 import _ from 'lodash'
 import hash from 'object-hash'
 import MongoClient from 'mongodb'
+import util from 'util'
 
 const NEW_ACTION_EVENT = 'new-action';
 
@@ -41,8 +42,7 @@ export default class {
 
         const snapshots = await this.snapshotCollection.find({_id: snapshotKey}).toArray();
         if (snapshots.length > 0) {
-            Promise.reject(`State already exists for state ID ${streamId}`);
-            return;
+            throw new Error(util.format('State already exists for state ID %j', streamId));
         }
 
         var snapshot = {
@@ -60,7 +60,7 @@ export default class {
         const snapshotKey = hash(streamId);
         const snapshots = await this.snapshotCollection.find({_id: snapshotKey}).toArray();
         if (snapshots.length === 0) {
-            throw new Error(`No state for stream ID ${streamId}`);
+            throw new Error(util.format('No state for stream ID %j', streamId));
         }
 
         return censorDocument(snapshots[0])
@@ -81,7 +81,7 @@ export default class {
 
         const actions = await this.actionCollection.find({_id: actionKey}).toArray();
         if (actions.length === 0) {
-            throw new Error(`No action for stream ID ${streamId} and sequence number ${sequenceNumber}`)
+            throw new Error(util.format('No action for stream ID %j and sequence number %j', streamId, sequenceNumber))
         }
 
         return censorDocument(actions[0])
