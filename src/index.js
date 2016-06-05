@@ -20,11 +20,14 @@ export default class {
         this.actionCollection = db.collection(this.actionCollectionName);
         this.snapshotCollection = db.collection(this.snapshotCollectionName);
 
-        this.actionCollection.find({}).addCursorFlag('tailable', true).on('data', action => {
-            var censoredAction = censorDocument(action);
-            this._eventEmitter.emit(NEW_ACTION_EVENT, censoredAction);
-            this._eventEmitter.emit(NEW_ACTION_EVENT + hash(action.reduxLive.streamId), censoredAction);
-        });
+        this.actionCollection
+            .find({'reduxLive.timestamp': {$gt: Date.now()}})
+            .addCursorFlag('tailable', true)
+            .on('data', action => {
+                var censoredAction = censorDocument(action);
+                this._eventEmitter.emit(NEW_ACTION_EVENT, censoredAction);
+                this._eventEmitter.emit(NEW_ACTION_EVENT + hash(action.reduxLive.streamId), censoredAction);
+            });
 
         console.log('Connected to Redux Live MongoDB');
     }
