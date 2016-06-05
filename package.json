@@ -1,6 +1,6 @@
 {
   "name": "redux-live-mongodb",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "MongoDB implementation of Redux Live DB",
   "main": "index.js",
   "scripts": {
